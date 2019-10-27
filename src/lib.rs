@@ -43,13 +43,18 @@ struct ContainerAttrs {
     #[darling(default)]
     strip_option: bool,
 
+    /// Whether to generate setters for this struct's fields by default. If set to false,
+    /// `generate_public` and `generate_private` are ignored.
+    #[darling(default)]
+    generate: Option<bool>,
+
     /// Whether to generate setters for this struct's public fields by default.
     #[darling(default)]
     generate_public: Option<bool>,
 
     /// Whether to generate setters for this struct's private fields by default.
     #[darling(default)]
-    generate_private: bool,
+    generate_private: Option<bool>,
 }
 
 #[derive(Debug, Clone, FromField)]
@@ -57,9 +62,9 @@ struct ContainerAttrs {
 struct FieldAttrs {
     attrs: Vec<Attribute>,
 
-    /// The name of the generated builder.
+    /// The name of the generated setter method.
     #[darling(default)]
-    builder_name: Option<Ident>,
+    rename: Option<Ident>,
 
     /// Whether to accept any field that converts via `Into` to this field's type.
     #[darling(default)]
@@ -109,6 +114,7 @@ fn init_container_def(input: &DeriveInput) -> Result<ContainerDef, SynTokenStrea
     let (_, generics_ty, _) = darling_attrs.generics.split_for_impl();
     let ty = quote! { #ident #generics_ty };
 
+    let generate = darling_attrs.generate.unwrap_or(true);
     Ok(ContainerDef {
         name: darling_attrs.ident,
         ty: parse2(ty).expect("Internal error: failed to parse internally generated type."),
@@ -120,8 +126,8 @@ fn init_container_def(input: &DeriveInput) -> Result<ContainerDef, SynTokenStrea
         generics: darling_attrs.generics,
         uses_into: darling_attrs.into,
         strip_option: darling_attrs.strip_option,
-        generate_public: darling_attrs.generate_public.unwrap_or(true),
-        generate_private: darling_attrs.generate_private,
+        generate_public: generate && darling_attrs.generate_public.unwrap_or(true),
+        generate_private: generate && darling_attrs.generate_private.unwrap_or(true),
     })
 }
 
@@ -158,7 +164,7 @@ fn init_field_def(
             let attrs = darling_attrs.attrs;
             quote! { #( #attrs )* }
         },
-        setter_name: darling_attrs.builder_name.unwrap_or_else(|| ident.clone()),
+        setter_name: darling_attrs.rename.unwrap_or_else(|| ident.clone()),
         uses_into: darling_attrs.into.unwrap_or(container.uses_into),
         strip_option: darling_attrs.strip_option.unwrap_or(container.strip_option),
     }))

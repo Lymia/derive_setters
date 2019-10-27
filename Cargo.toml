@@ -15,7 +15,7 @@ license = "MIT/Apache-2.0"
 proc-macro = true
 
 [features]
-nightly = ["proc-macro2/nightly", "darling/diagnostics"]
+nightly = ["proc-macro2/nightly"]
 
 [dependencies]
 darling = "0.10"
