@@ -79,3 +79,24 @@ fn into_struct() {
         IntoStruct { a: "testa".into(), b: Some("testb".into()) },
     );
 }
+
+#[derive(Default, InherentBuilder, Debug, PartialEq, Eq)]
+#[builder(prefix = "with_")]
+struct WithStruct {
+    #[builder(rename = "test")]
+    a: u32,
+    b: u32,
+    c: u32,
+}
+
+#[test]
+fn with_struct() {
+    assert_eq!(
+        WithStruct::default().test(30).with_b(10).with_c(20),
+        WithStruct { a: 30, b: 10, c: 20 },
+    );
+    assert_eq!(
+        WithStruct::default().with_b(15).test(10),
+        WithStruct { a: 10, b: 15, ..Default::default() },
+    );
+}

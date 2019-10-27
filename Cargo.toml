@@ -8,6 +8,7 @@ description = "Allows the declaration of builder methods on normal structs."
 
 documentation = "https://docs.rs/derive_inherent_builder/0.1.0/derive_inherent_builder/"
 repository = "https://github.com/Lymia/derive_inherent_builder"
+readme = "README.md"
 
 license = "MIT/Apache-2.0"
 
