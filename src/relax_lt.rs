@@ -1,4 +1,4 @@
-//! Modifies the lifetimes in the builder methods to minimize the chance of lifetime weirdness.
+//! Modifies the lifetimes in the setter methods to minimize the chance of lifetime weirdness.
 
 use proc_macro2::{TokenStream as SynTokenStream};
 use std::collections::HashSet;

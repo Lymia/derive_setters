@@ -1,10 +1,10 @@
-use derive_inherent_builder::*;
+use derive_setters::*;
 
 use std::borrow::Cow;
 
-#[derive(Default, InherentBuilder, Debug, PartialEq, Eq)]
+#[derive(Default, Setters, Debug, PartialEq, Eq)]
 struct BasicStruct {
-    #[builder(rename = "test")]
+    #[setters(rename = "test")]
     a: u32,
     b: u32,
     c: u32,
@@ -22,7 +22,7 @@ fn basic_struct() {
     );
 }
 
-#[derive(Default, InherentBuilder, Debug, PartialEq, Eq)]
+#[derive(Default, Setters, Debug, PartialEq, Eq)]
 struct GenericStruct<'a, T> {
     a: Option<&'a T>,
     b: Option<&'a T>,
@@ -41,8 +41,8 @@ fn generic_struct() {
     );
 }
 
-#[derive(Default, InherentBuilder, Debug, PartialEq, Eq)]
-#[builder(strip_option)]
+#[derive(Default, Setters, Debug, PartialEq, Eq)]
+#[setters(strip_option)]
 struct StripOptionStruct {
     a: Option<u32>,
     b: u32,
@@ -60,8 +60,8 @@ fn strip_option_struct() {
     );
 }
 
-#[derive(Default, InherentBuilder, Debug, PartialEq, Eq)]
-#[builder(into, strip_option)]
+#[derive(Default, Setters, Debug, PartialEq, Eq)]
+#[setters(into, strip_option)]
 struct IntoStruct<'a> {
     a: Cow<'a, str>,
     b: Option<Cow<'a, str>>,
@@ -80,10 +80,10 @@ fn into_struct() {
     );
 }
 
-#[derive(Default, InherentBuilder, Debug, PartialEq, Eq)]
-#[builder(prefix = "with_")]
+#[derive(Default, Setters, Debug, PartialEq, Eq)]
+#[setters(prefix = "with_")]
 struct WithStruct {
-    #[builder(rename = "test")]
+    #[setters(rename = "test")]
     a: u32,
     b: u32,
     c: u32,

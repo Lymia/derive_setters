@@ -1,13 +1,13 @@
 [package]
-name = "derive_inherent_builder"
+name = "derive_setters"
 version = "0.1.0"
 authors = ["Lymia Aluysia <lymia@lymiahugs.com>"]
 edition = "2018"
 
-description = "Allows the declaration of builder methods on normal structs."
+description = "Rust macro to automatically generates setter methods for a struct's fields."
 
-documentation = "https://docs.rs/derive_inherent_builder/0.1.0/derive_inherent_builder/"
-repository = "https://github.com/Lymia/derive_inherent_builder"
+documentation = "https://docs.rs/derive_setters/0.1.0/derive_setters/"
+repository = "https://github.com/Lymia/derive_setters"
 readme = "README.md"
 
 license = "MIT/Apache-2.0"
