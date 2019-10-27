@@ -1,0 +1,18 @@
+language: rust
+
+matrix:
+  include:
+    - rust: stable
+    - rust: beta
+    - rust: 1.31.0
+
+    - rust: nightly
+      script:
+        - cd "${TRAVIS_BUILD_DIR}/derive_setters"
+        - cargo test
+        - cargo test --features nightly
+
+
+script:
+  - cd "${TRAVIS_BUILD_DIR}/derive_setters"
+  - cargo test
