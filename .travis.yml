@@ -8,11 +8,9 @@ matrix:
 
     - rust: nightly
       script:
-        - cd "${TRAVIS_BUILD_DIR}/derive_setters"
         - cargo test
         - cargo test --features nightly
 
 
 script:
-  - cd "${TRAVIS_BUILD_DIR}/derive_setters"
   - cargo test
