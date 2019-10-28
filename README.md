@@ -49,7 +49,7 @@ The following options can be set on either the entire struct, or on an individua
 can disable the features for a particular field with `#[setters(option = "false")]`
 
 * `#[setters(into)]` causes the setter method to accept any type that can be converted into the field's type
-  via [`Into`].
+  via `Into`.
 * `#[setters(strip_option)]` causes the setter method to accept `T` instead of `Option<T>`. If applied to a field
   that isn't wrapped in an `Option`, it does nothing.
 * `#[setters(bool)]` causes the setter method to take no arguments, and set the field to `true`.
