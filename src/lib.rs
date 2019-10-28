@@ -46,6 +46,8 @@
 //!   the field's type via [`Into`].
 //! * `#[setters(strip_option)]` causes the setter method to accept `T` instead of `Option<T>`. If
 //!   applied to a field that isn't wrapped in an `Option`, it does nothing.
+//! * `#[setters(bool)]` causes the setter method to take no arguments, and set the field to
+//!   `true`.
 
 #![cfg_attr(feature = "nightly", feature(proc_macro_diagnostic))]
 
@@ -90,6 +92,10 @@ struct ContainerAttrs {
     #[darling(default)]
     strip_option: bool,
 
+    /// Whether to generate a method that sets a boolean by default.
+    #[darling(default)]
+    bool: bool,
+
     /// Whether to generate setters for this struct's fields by default. If set to false,
     /// `generate_public` and `generate_private` are ignored.
     #[darling(default)]
@@ -125,6 +131,10 @@ struct FieldAttrs {
     #[darling(default)]
     strip_option: Option<bool>,
 
+    /// Whether to generate a method that sets a boolean.
+    #[darling(default)]
+    bool: Option<bool>,
+
     /// Whether to generate a setter for this field regardless of global settings.
     #[darling(default)]
     generate: bool,
@@ -143,6 +153,7 @@ struct ContainerDef {
     prefix: String,
     uses_into: bool,
     strip_option: bool,
+    bool: bool,
     generate_public: bool,
     generate_private: bool,
 }
@@ -154,6 +165,7 @@ struct FieldDef {
     setter_name: Ident,
     uses_into: bool,
     strip_option: bool,
+    bool: bool,
 }
 
 fn init_container_def(input: &DeriveInput) -> Result<ContainerDef, SynTokenStream> {
@@ -179,6 +191,7 @@ fn init_container_def(input: &DeriveInput) -> Result<ContainerDef, SynTokenStrea
         prefix: darling_attrs.prefix.unwrap_or(String::new()),
         uses_into: darling_attrs.into,
         strip_option: darling_attrs.strip_option,
+        bool: darling_attrs.bool,
         generate_public: generate && darling_attrs.generate_public.unwrap_or(true),
         generate_private: generate && darling_attrs.generate_private.unwrap_or(true),
     })
@@ -222,6 +235,7 @@ fn init_field_def(
         ),
         uses_into: darling_attrs.into.unwrap_or(container.uses_into),
         strip_option: darling_attrs.strip_option.unwrap_or(container.strip_option),
+        bool: darling_attrs.bool.unwrap_or(container.bool),
     }))
 }
 
@@ -262,13 +276,21 @@ fn generate_setter_method(
     // The expression actually stored into the field.
     let mut expr = quote! { value };
     if def.uses_into { expr = quote! { #expr.into() }; }
+    if def.bool { expr = quote! { true }; }
     if stripped_option { expr = quote! { Some(#expr) }; }
+
+    // Handle the parameters when bool is enabled.
+    let params = if def.bool {
+        SynTokenStream::new()
+    } else {
+        quote! { value: #value_ty }
+    };
 
     // Generates the setter method itself.
     let container_name = &container.name;
     Ok(quote! {
         #field_doc
-        pub fn #setter_name (self, value: #value_ty) -> Self {
+        pub fn #setter_name (self, #params) -> Self {
             #container_name { #field_name: #expr, ..self }
         }
     })

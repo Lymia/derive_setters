@@ -100,3 +100,23 @@ fn with_struct() {
         WithStruct { a: 10, b: 15, ..Default::default() },
     );
 }
+
+#[derive(Default, Setters, Debug, PartialEq, Eq)]
+#[setters(bool)]
+struct BoolStruct {
+    a: bool,
+    b: bool,
+    c: bool,
+}
+
+#[test]
+fn bool_struct() {
+    assert_eq!(
+        BoolStruct::default().a().c(),
+        BoolStruct { a: true, b: false, c: true },
+    );
+    assert_eq!(
+        BoolStruct::default().b().a(),
+        BoolStruct { a: true, b: true, c: false },
+    );
+}
