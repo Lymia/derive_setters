@@ -61,8 +61,6 @@ use syn::export::Span;
 use syn::spanned::Spanned;
 use quote::*;
 
-mod relax_lt;
-
 #[cfg(feature = "nightly")]
 fn error(span: Span, data: &str) -> SynTokenStream {
     span.unstable().error(data).emit();
@@ -254,15 +252,11 @@ fn generate_setter_method(
         }
     }
 
-    // Relax any lifetimes in the value.
-    let (generics, where_generics, value_ty, container_ty) =
-        relax_lt::relax_lifetimes(&field_ty, &container.ty)?;
-
     // The type the setter accepts.
     let value_ty = if def.uses_into {
-        quote! { impl ::#std::convert::Into<#value_ty> }
+        quote! { impl ::#std::convert::Into<#field_ty> }
     } else {
-        quote! { #value_ty }
+        quote! { #field_ty }
     };
 
     // The expression actually stored into the field.
@@ -274,7 +268,7 @@ fn generate_setter_method(
     let container_name = &container.name;
     Ok(quote! {
         #field_doc
-        pub fn #setter_name #generics (self, value: #value_ty) -> #container_ty #where_generics {
+        pub fn #setter_name (self, value: #value_ty) -> Self {
             #container_name { #field_name: #expr, ..self }
         }
     })
