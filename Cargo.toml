@@ -1,12 +1,11 @@
 [package]
 name = "derive_setters"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Lymia Aluysia <lymia@lymiahugs.com>"]
 edition = "2018"
 
 description = "Rust macro to automatically generates setter methods for a struct's fields."
 
-documentation = "https://docs.rs/derive_setters/0.1.0/derive_setters/"
 repository = "https://github.com/Lymia/derive_setters"
 readme = "README.md"
 
