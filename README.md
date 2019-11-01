@@ -13,7 +13,8 @@ For a related library that creates separate builder types, see
 # Basic usage example
 
 ```rust
-# use derive_setters::*;
+use derive_setters::*;
+
 #[derive(Default, Setters, Debug, PartialEq, Eq)]
 struct BasicStruct {
     #[setters(rename = "test")]
