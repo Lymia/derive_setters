@@ -77,7 +77,7 @@ struct ContainerAttrs {
     /// Other types to generate delegates to this type for. Note that this does not support
     /// generics.
     #[darling(multiple)]
-    delegate_from: Vec<ExternalDelegate>,
+    generate_delegates: Vec<ExternalDelegate>,
 }
 
 #[derive(Debug, Clone, FromField)]
@@ -123,7 +123,7 @@ struct ContainerDef {
     generate_public: bool,
     generate_private: bool,
 
-    delegate_from: Vec<ExternalDelegate>,
+    generate_delegates: Vec<ExternalDelegate>,
 }
 
 struct FieldDef {
@@ -162,7 +162,7 @@ fn init_container_def(input: &DeriveInput) -> Result<ContainerDef, SynTokenStrea
         bool: darling_attrs.bool,
         generate_public: generate && darling_attrs.generate_public.unwrap_or(true),
         generate_private: generate && darling_attrs.generate_private.unwrap_or(true),
-        delegate_from: darling_attrs.delegate_from,
+        generate_delegates: darling_attrs.generate_delegates,
     })
 }
 
@@ -304,7 +304,7 @@ fn generate_setters(input: &DeriveInput, data: &DataStruct) -> Result<TokenStrea
     toks.extend(generate_setters_for(
         input, data, &container_def.generics, quote! { #container_ty }, None,
     ));
-    for delegate in container_def.delegate_from {
+    for delegate in container_def.generate_delegates {
         let delegate_ty = delegate.ty;
         toks.extend(generate_setters_for(
             input, data, &Generics::default(), quote! { #delegate_ty },

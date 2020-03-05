@@ -3,8 +3,8 @@ use derive_setters::*;
 use std::borrow::Cow;
 
 #[derive(Default, Setters, Debug, PartialEq, Eq)]
-#[setters(delegate_from(ty = "BasicDelegateField", field = "x"))]
-#[setters(delegate_from(ty = "BasicDelegateMethod", method = "get_x"))]
+#[setters(generate_delegates(ty = "BasicDelegateField", field = "x"))]
+#[setters(generate_delegates(ty = "BasicDelegateMethod", method = "get_x"))]
 struct BasicStruct {
     #[setters(rename = "test")]
     a: u32,
