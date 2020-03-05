@@ -23,6 +23,18 @@ fn error(_: Span, data: &str) -> SynTokenStream {
     quote! { compile_error!(#data); }
 }
 
+#[derive(Debug, Clone, FromMeta)]
+struct ExternalDelegate {
+    /// The type to generate a delegate for.
+    ty: Path,
+    /// The field to delegate the methods to.
+    #[darling(default)]
+    field: Option<Ident>,
+    /// The method to delegate the methods to.
+    #[darling(default)]
+    method: Option<Ident>,
+}
+
 #[derive(Debug, Clone, FromDeriveInput)]
 #[darling(attributes(setters), supports(struct_named))]
 struct ContainerAttrs {
@@ -61,6 +73,11 @@ struct ContainerAttrs {
     /// A prefix for the generated setter methods.
     #[darling(default)]
     prefix: Option<String>,
+
+    /// Other types to generate delegates to this type for. Note that this does not support
+    /// generics.
+    #[darling(multiple)]
+    delegate_from: Vec<ExternalDelegate>,
 }
 
 #[derive(Debug, Clone, FromField)]
@@ -105,6 +122,8 @@ struct ContainerDef {
     bool: bool,
     generate_public: bool,
     generate_private: bool,
+
+    delegate_from: Vec<ExternalDelegate>,
 }
 
 struct FieldDef {
@@ -143,6 +162,7 @@ fn init_container_def(input: &DeriveInput) -> Result<ContainerDef, SynTokenStrea
         bool: darling_attrs.bool,
         generate_public: generate && darling_attrs.generate_public.unwrap_or(true),
         generate_private: generate && darling_attrs.generate_private.unwrap_or(true),
+        delegate_from: darling_attrs.delegate_from,
     })
 }
 
@@ -190,7 +210,7 @@ fn init_field_def(
 
 
 fn generate_setter_method(
-    container: &ContainerDef, def: FieldDef,
+    container: &ContainerDef, def: FieldDef, delegate_toks: &Option<SynTokenStream>,
 ) -> Result<SynTokenStream, SynTokenStream> {
     let FieldDef {
         field_name, mut field_ty, field_doc, setter_name, ..
@@ -237,30 +257,71 @@ fn generate_setter_method(
 
     // Generates the setter method itself.
     let container_name = &container.name;
+    if let Some(delegate) = delegate_toks {
+        Ok(quote! {
+            #field_doc
+            pub fn #setter_name (mut self, #params) -> Self {
+                self.#delegate.#field_name = #expr;
+                self
+            }
+        })
+    } else {
+        Ok(quote! {
+            #field_doc
+            pub fn #setter_name (self, #params) -> Self {
+                #container_name { #field_name: #expr, ..self }
+            }
+        })
+    }
+}
+
+fn generate_setters_for(
+    input: &DeriveInput, data: &DataStruct, generics: &Generics,
+    ty: SynTokenStream, delegate_toks: Option<SynTokenStream>,
+) -> Result<SynTokenStream, SynTokenStream> {
+    let container_def = init_container_def(&input)?;
+    let mut toks = SynTokenStream::new();
+    for field in &data.fields {
+        if let Some(field_def) = init_field_def(&container_def, field)? {
+            let method = generate_setter_method(&container_def, field_def, &delegate_toks)?;
+            toks.extend(method);
+        }
+    }
+
+    let (generics_bound, _, generics_where) = generics.split_for_impl();
     Ok(quote! {
-        #field_doc
-        pub fn #setter_name (self, #params) -> Self {
-            #container_name { #field_name: #expr, ..self }
+        impl #generics_bound #ty #generics_where {
+            #toks
         }
     })
+
 }
 
 fn generate_setters(input: &DeriveInput, data: &DataStruct) -> Result<TokenStream, TokenStream> {
     let container_def = init_container_def(&input)?;
     let mut toks = SynTokenStream::new();
-    for field in &data.fields {
-        if let Some(field_def) = init_field_def(&container_def, field)? {
-            let method = generate_setter_method(&container_def, field_def)?;
-            toks.extend(method);
-        }
+    let container_ty = &container_def.ty;
+    toks.extend(generate_setters_for(
+        input, data, &container_def.generics, quote! { #container_ty }, None,
+    ));
+    for delegate in container_def.delegate_from {
+        let delegate_ty = delegate.ty;
+        toks.extend(generate_setters_for(
+            input, data, &Generics::default(), quote! { #delegate_ty },
+            if delegate.field.is_some() && delegate.method.is_some() {
+                return Err(error(input.span(),
+                                 "Cannot set both `method` and `field` on a delegate.").into());
+            } else if let Some(field) = &delegate.field {
+                Some(quote! { #field })
+            } else if let Some(method) = &delegate.method {
+                Some(quote! { #method() })
+            } else {
+                return Err(error(input.span(),
+                                 "Must set either `method` or `field` on a delegate.").into());
+            }
+        ));
     }
-    let (generics_bound, _, generics_where) = container_def.generics.split_for_impl();
-    let ty = container_def.ty;
-    Ok(quote! {
-        impl #generics_bound #ty #generics_where {
-            #toks
-        }
-    }.into())
+    Ok(toks.into())
 }
 
 #[proc_macro_derive(Setters, attributes(setters))]

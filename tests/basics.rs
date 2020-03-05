@@ -3,11 +3,31 @@ use derive_setters::*;
 use std::borrow::Cow;
 
 #[derive(Default, Setters, Debug, PartialEq, Eq)]
+#[setters(delegate_from(ty = "BasicDelegateField", field = "x"))]
+#[setters(delegate_from(ty = "BasicDelegateMethod", method = "get_x"))]
 struct BasicStruct {
     #[setters(rename = "test")]
     a: u32,
     b: u32,
     c: u32,
+}
+
+#[derive(Default, Debug, PartialEq, Eq)]
+struct BasicDelegateField {
+    x: BasicStruct,
+}
+
+#[derive(Default, Debug, PartialEq, Eq)]
+struct BasicDelegateMethod {
+    x: Option<BasicStruct>,
+}
+impl BasicDelegateMethod {
+    fn get_x(&mut self) -> &mut BasicStruct {
+        if self.x.is_none() {
+            self.x = Some(BasicStruct::default());
+        }
+        self.x.as_mut().unwrap()
+    }
 }
 
 #[test]
@@ -19,6 +39,18 @@ fn basic_struct() {
     assert_eq!(
         BasicStruct::default().b(15).test(10),
         BasicStruct { a: 10, b: 15, ..Default::default() },
+    );
+}
+
+#[test]
+fn delegated_structs() {
+    assert_eq!(
+        BasicDelegateField::default().b(15).test(10),
+        BasicDelegateField { x: BasicStruct { a: 10, b: 15, ..Default::default() } },
+    );
+    assert_eq!(
+        BasicDelegateMethod::default().b(15).test(10),
+        BasicDelegateMethod { x: Some(BasicStruct { a: 10, b: 15, ..Default::default() }) },
     );
 }
 
