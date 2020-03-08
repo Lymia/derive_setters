@@ -152,3 +152,75 @@ fn bool_struct() {
         BoolStruct { a: true, b: true, c: false },
     );
 }
+
+
+#[derive(Default, Setters, Debug, PartialEq, Eq)]
+#[setters(borrow_self)]
+struct BasicRefStruct {
+    #[setters(rename = "test")]
+    a: u32,
+    b: u32,
+    c: u32,
+}
+
+
+#[test]
+fn basic_ref_struct() {
+    let mut a = BasicRefStruct::default();
+    a.test(1);
+    a.b(3);
+    a.c(34);
+
+    assert_eq!(a.a, 1);
+    assert_eq!(a.b, 3);
+    assert_eq!(a.c, 34);
+}
+
+#[derive(Default, Setters, Debug, PartialEq, Eq)]
+#[setters(borrow_self)]
+#[setters(generate_delegates(ty = "BasicRefDelegateField", field = "x"))]
+#[setters(generate_delegates(ty = "BasicRefDelegateMethod", method = "get_x"))]
+struct InnerRefDelegateStruct {
+    #[setters(rename = "test")]
+    a: u32,
+    b: u32,
+    c: u32,
+}
+
+#[derive(Default, Debug, PartialEq, Eq)]
+struct BasicRefDelegateField {
+    x: InnerRefDelegateStruct,
+}
+
+#[derive(Default, Debug, PartialEq, Eq)]
+struct BasicRefDelegateMethod {
+    x: Option<InnerRefDelegateStruct>,
+}
+impl BasicRefDelegateMethod {
+    fn get_x(&mut self) -> &mut InnerRefDelegateStruct {
+        if self.x.is_none() {
+            self.x = Some(InnerRefDelegateStruct::default());
+        }
+        self.x.as_mut().unwrap()
+    }
+}
+
+#[test]
+fn basic_ref_delegate_field() {
+    let mut a = BasicRefDelegateField::default();
+    a.test(1);
+    a.b(3);
+    a.c(34);
+
+    assert_eq!(a.x, InnerRefDelegateStruct{ a: 1, b: 3, c:34});
+}
+
+#[test]
+fn basic_ref_delegate_method() {
+    let mut a = BasicRefDelegateMethod::default();
+    a.test(1);
+    a.b(3);
+    a.c(34);
+
+    assert_eq!(a.x, Some(InnerRefDelegateStruct{ a: 1, b: 3, c:34}));
+}

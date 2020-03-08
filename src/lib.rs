@@ -53,6 +53,10 @@ struct ContainerAttrs {
     #[darling(default)]
     strip_option: bool,
 
+    /// Whether to borrow or take ownership of `self` in the setter method(s)
+    #[darling(default)]
+    borrow_self: bool,
+
     /// Whether to generate a method that sets a boolean by default.
     #[darling(default)]
     bool: bool,
@@ -119,6 +123,7 @@ struct ContainerDef {
     prefix: String,
     uses_into: bool,
     strip_option: bool,
+    borrow_self: bool,
     bool: bool,
     generate_public: bool,
     generate_private: bool,
@@ -155,6 +160,7 @@ fn init_container_def(input: &DeriveInput) -> Result<ContainerDef, SynTokenStrea
         } else {
             Ident::new("std", Span::call_site())
         },
+        borrow_self: darling_attrs.borrow_self,
         generics: darling_attrs.generics,
         prefix: darling_attrs.prefix.unwrap_or(String::new()),
         uses_into: darling_attrs.into,
@@ -258,20 +264,42 @@ fn generate_setter_method(
     // Generates the setter method itself.
     let container_name = &container.name;
     if let Some(delegate) = delegate_toks {
+        let _self = if container.borrow_self {
+            quote! { &mut self }
+        } else {
+            quote! { mut self }
+        };
+
+        let return_self = if container.borrow_self {
+            quote! { &mut Self }
+        } else {
+            quote! { Self }
+        };
+
         Ok(quote! {
             #field_doc
-            pub fn #setter_name (mut self, #params) -> Self {
+            pub fn #setter_name (#_self, #params) -> #return_self {
                 self.#delegate.#field_name = #expr;
                 self
             }
         })
     } else {
-        Ok(quote! {
-            #field_doc
-            pub fn #setter_name (self, #params) -> Self {
-                #container_name { #field_name: #expr, ..self }
-            }
-        })
+        if container.borrow_self {
+            Ok(quote! {
+                #field_doc
+                pub fn #setter_name (&mut self, #params) -> &mut Self {
+                    self.#field_name = #expr;
+                    self
+                }
+            })
+        } else {
+            Ok(quote! {
+                #field_doc
+                pub fn #setter_name (self, #params) -> Self {
+                    #container_name { #field_name: #expr, ..self }
+                }
+            })
+        }
     }
 }
 
