@@ -227,14 +227,12 @@ fn generate_setter_method(
     let mut stripped_option = false;
     if def.strip_option {
         if let Type::Path(path) = &field_ty {
-            if path.path.segments.len() == 1 {
-                let segment = path.path.segments.first().unwrap();
-                if segment.ident.to_string() == "Option" {
-                    if let PathArguments::AngleBracketed(path) = &segment.arguments {
-                        if let GenericArgument::Type(tp) = path.args.first().unwrap() {
-                            field_ty = tp.clone();
-                            stripped_option = true;
-                        }
+            let segment = path.path.segments.last().unwrap();
+            if segment.ident.to_string() == "Option" {
+                if let PathArguments::AngleBracketed(path) = &segment.arguments {
+                    if let GenericArgument::Type(tp) = path.args.first().unwrap() {
+                        field_ty = tp.clone();
+                        stripped_option = true;
                     }
                 }
             }
