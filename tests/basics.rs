@@ -86,11 +86,11 @@ struct StripOptionStruct {
 fn strip_option_struct() {
     assert_eq!(
         StripOptionStruct::default().a(3).b(42).c(43).d(7),
-        StripOptionStruct { a: Some(3), b: Some(42), c : Some(43), d: (7) },
+        StripOptionStruct { a: Some(3), b: Some(42), c: Some(43), d: 7 },
     );
     assert_eq!(
         StripOptionStruct::default().b(6),
-        StripOptionStruct { a: None, b: Some(6) , c: None, d: 0},
+        StripOptionStruct { a: None, b: Some(6), c: None, d: 0 },
     );
 }
 
@@ -165,7 +165,6 @@ struct BasicRefStruct {
     c: u32,
 }
 
-
 #[test]
 fn basic_ref_struct() {
     let mut a = BasicRefStruct::default();
@@ -214,7 +213,7 @@ fn basic_ref_delegate_field() {
     a.b(3);
     a.c(34);
 
-    assert_eq!(a.x, InnerRefDelegateStruct{ a: 1, b: 3, c:34});
+    assert_eq!(a.x, InnerRefDelegateStruct{ a: 1, b: 3, c: 34 });
 }
 
 #[test]
@@ -224,5 +223,5 @@ fn basic_ref_delegate_method() {
     a.b(3);
     a.c(34);
 
-    assert_eq!(a.x, Some(InnerRefDelegateStruct{ a: 1, b: 3, c:34}));
+    assert_eq!(a.x, Some(InnerRefDelegateStruct{ a: 1, b: 3, c: 34 }));
 }
