@@ -58,6 +58,8 @@ can disable the features for a particular field with `#[setters(option = "false"
 * `#[setters(strip_option)]` causes the setter method to accept `T` instead of `Option<T>`. If applied to a field
   that isn't wrapped in an `Option`, it does nothing.
 * `#[setters(bool)]` causes the setter method to take no arguments, and set the field to `true`.
+* `#[setters(borrow_self)]` causes the generated setter method to borrow `&mut self` instead of taking `self`. This
+  is better for code styles that require mutable setters rather than immutable setters.
 
 # License
 
