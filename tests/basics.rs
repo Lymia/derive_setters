@@ -77,18 +77,20 @@ fn generic_struct() {
 #[setters(strip_option)]
 struct StripOptionStruct {
     a: Option<u32>,
-    b: u32,
+    b: core::option::Option<u32>,
+    c: std::option::Option<u32>,
+    d: u32,
 }
 
 #[test]
 fn strip_option_struct() {
     assert_eq!(
-        StripOptionStruct::default().a(3).b(6),
-        StripOptionStruct { a: Some(3), b: 6 },
+        StripOptionStruct::default().a(3).b(42).c(43).d(7),
+        StripOptionStruct { a: Some(3), b: Some(42), c : Some(43), d: (7) },
     );
     assert_eq!(
         StripOptionStruct::default().b(6),
-        StripOptionStruct { a: None, b: 6 },
+        StripOptionStruct { a: None, b: Some(6) , c: None, d: 0},
     );
 }
 
