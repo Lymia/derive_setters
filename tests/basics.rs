@@ -155,26 +155,41 @@ fn bool_struct() {
     );
 }
 
-
 #[derive(Default, Setters, Debug, PartialEq, Eq)]
 #[setters(borrow_self)]
 struct BasicRefStruct {
     #[setters(rename = "test")]
     a: u32,
     b: u32,
+    #[setters(borrow_self = "false")]
     c: u32,
 }
 
 #[test]
 fn basic_ref_struct() {
-    let mut a = BasicRefStruct::default();
+    let mut a = BasicRefStruct::default().c(34);
     a.test(1);
     a.b(3);
-    a.c(34);
 
     assert_eq!(a.a, 1);
     assert_eq!(a.b, 3);
     assert_eq!(a.c, 34);
+}
+
+#[derive(Default, Setters, Debug, PartialEq, Eq)]
+struct FieldRefStruct {
+    a: u32,
+    #[setters(borrow_self)]
+    b: u32,
+}
+
+#[test]
+fn field_ref_struct() {
+    let mut a = FieldRefStruct::default().a(10);
+    a.b(20);
+
+    assert_eq!(a.a, 10);
+    assert_eq!(a.b, 20);
 }
 
 #[derive(Default, Setters, Debug, PartialEq, Eq)]

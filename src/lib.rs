@@ -53,7 +53,7 @@ struct ContainerAttrs {
     #[darling(default)]
     strip_option: bool,
 
-    /// Whether to borrow or take ownership of `self` in the setter method(s)
+    /// Whether to borrow or take ownership of `self` in the setter method by default.
     #[darling(default)]
     borrow_self: bool,
 
@@ -101,6 +101,10 @@ struct FieldAttrs {
     #[darling(default)]
     strip_option: Option<bool>,
 
+    /// Whether to borrow or take ownership of `self` for the setter method.
+    #[darling(default)]
+    borrow_self: Option<bool>,
+
     /// Whether to generate a method that sets a boolean.
     #[darling(default)]
     bool: Option<bool>,
@@ -138,6 +142,7 @@ struct FieldDef {
     setter_name: Ident,
     uses_into: bool,
     strip_option: bool,
+    borrow_self: bool,
     bool: bool,
 }
 
@@ -210,6 +215,7 @@ fn init_field_def(
         ),
         uses_into: darling_attrs.into.unwrap_or(container.uses_into),
         strip_option: darling_attrs.strip_option.unwrap_or(container.strip_option),
+        borrow_self: darling_attrs.borrow_self.unwrap_or(container.borrow_self),
         bool: darling_attrs.bool.unwrap_or(container.bool),
     }))
 }
@@ -262,13 +268,13 @@ fn generate_setter_method(
     // Generates the setter method itself.
     let container_name = &container.name;
     if let Some(delegate) = delegate_toks {
-        let _self = if container.borrow_self {
+        let _self = if def.borrow_self {
             quote! { &mut self }
         } else {
             quote! { mut self }
         };
 
-        let return_self = if container.borrow_self {
+        let return_self = if def.borrow_self {
             quote! { &mut Self }
         } else {
             quote! { Self }
@@ -282,7 +288,7 @@ fn generate_setter_method(
             }
         })
     } else {
-        if container.borrow_self {
+        if def.borrow_self {
             Ok(quote! {
                 #field_doc
                 pub fn #setter_name (&mut self, #params) -> &mut Self {
