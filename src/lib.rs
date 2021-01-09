@@ -5,10 +5,9 @@ extern crate proc_macro;
 use darling::*;
 use darling::util::Flag;
 use proc_macro::TokenStream;
-use proc_macro2::{TokenStream as SynTokenStream};
+use proc_macro2::{Span, TokenStream as SynTokenStream};
 use std::result::Result;
 use syn::*;
-use syn::export::Span;
 use syn::spanned::Spanned;
 use quote::*;
 
