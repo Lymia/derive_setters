@@ -1,6 +1,6 @@
 # derive_setters
 
-[![Build Status](https://api.travis-ci.org/Lymia/derive_setters.svg?branch=master)](https://travis-ci.org/Lymia/derive_setters)
+[![Build Status](https://api.travis-ci.com/Lymia/derive_setters.svg?branch=master)](https://travis-ci.com/Lymia/derive_setters)
 [![Latest Version](https://img.shields.io/crates/v/derive_setters.svg)](https://crates.io/crates/derive_setters)
 ![Requires rustc 1.31+](https://img.shields.io/badge/rustc-1.31+-red.svg)
 
