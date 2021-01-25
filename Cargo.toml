@@ -1,6 +1,6 @@
 [package]
 name = "derive_setters"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["Lymia Aluysia <lymia@lymiahugs.com>"]
 edition = "2018"
 
