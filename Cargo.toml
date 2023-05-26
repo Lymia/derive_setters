@@ -18,7 +18,7 @@ proc-macro = true
 nightly = ["proc-macro2/nightly"]
 
 [dependencies]
-darling = "0.10"
-syn = "1"
+darling = "0.20"
+syn = "2"
 quote = "1"
 proc-macro2 = "1"

@@ -8,17 +8,20 @@ struct BasicRefStruct {
     b: u32,
     #[setters(borrow_self = "false")]
     c: u32,
+    #[setters(borrow_self = false)]
+    d: u32,
 }
 
 #[test]
 fn basic_ref_struct() {
-    let mut a = BasicRefStruct::default().c(34);
+    let mut a = BasicRefStruct::default().c(34).d(4);
     a.test(1);
     a.b(3);
 
     assert_eq!(a.a, 1);
     assert_eq!(a.b, 3);
     assert_eq!(a.c, 34);
+    assert_eq!(a.d, 4);
 }
 
 #[derive(Default, Setters, Debug, PartialEq, Eq)]

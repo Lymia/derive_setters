@@ -159,7 +159,7 @@ fn init_container_def(input: &DeriveInput) -> Result<ContainerDef, SynTokenStrea
     Ok(ContainerDef {
         name: darling_attrs.ident,
         ty: parse2(ty).expect("Internal error: failed to parse internally generated type."),
-        std: if darling_attrs.no_std.is_some() {
+        std: if darling_attrs.no_std.is_present() {
             Ident::new("core", Span::call_site())
         } else {
             Ident::new("std", Span::call_site())
