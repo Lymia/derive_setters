@@ -5,6 +5,7 @@ use std::borrow::Cow;
 #[derive(Default, Setters, Debug, PartialEq, Eq)]
 #[setters(generate_delegates(ty = "BasicDelegateField", field = "x"))]
 #[setters(generate_delegates(ty = "BasicDelegateMethod", method = "get_x"))]
+#[setters(generate_delegates(ty = "PrefixBasicDelegateField", field = "x", prefix = "with_"))]
 struct BasicStruct {
     #[setters(rename = "test")]
     a: u32,
@@ -30,6 +31,11 @@ impl BasicDelegateMethod {
     }
 }
 
+#[derive(Default, Debug, PartialEq, Eq)]
+struct PrefixBasicDelegateField {
+    x: BasicStruct,
+}
+
 #[test]
 fn basic_struct() {
     assert_eq!(
@@ -52,6 +58,10 @@ fn delegated_structs() {
         BasicDelegateMethod::default().b(15).test(10),
         BasicDelegateMethod { x: Some(BasicStruct { a: 10, b: 15, ..Default::default() }) },
     );
+    assert_eq!(
+        PrefixBasicDelegateField::default().with_b(15).with_test(10),
+        PrefixBasicDelegateField { x: BasicStruct { a: 10, b: 15, ..Default::default() } },
+    )
 }
 
 #[derive(Default, Setters, Debug, PartialEq, Eq)]

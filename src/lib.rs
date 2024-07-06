@@ -32,6 +32,9 @@ struct ExternalDelegate {
     /// The method to delegate the methods to.
     #[darling(default)]
     method: Option<Ident>,
+    /// A prefix for the delegated setter methods.
+    #[darling(default)]
+    prefix: Option<String>
 }
 
 #[derive(Debug, Clone, FromDeriveInput)]
@@ -221,12 +224,17 @@ fn init_field_def(
 
 
 fn generate_setter_method(
-    container: &ContainerDef, def: FieldDef, delegate_toks: &Option<SynTokenStream>,
+    container: &ContainerDef, def: FieldDef, additional_prefix: &Option<String>, delegate_toks: &Option<SynTokenStream>,
 ) -> Result<SynTokenStream, SynTokenStream> {
     let FieldDef {
         field_name, mut field_ty, field_doc, setter_name, ..
     } = def;
     let std = &container.std;
+    let setter_name = if let Some(additional_prefix) = additional_prefix {
+        Ident::new(&format!("{additional_prefix}{}", setter_name), setter_name.span())
+    } else {
+        setter_name
+    };
 
     // Strips `Option<T>` into `T` if the `strip_option` property is set.
     let mut stripped_option = false;
@@ -308,13 +316,13 @@ fn generate_setter_method(
 
 fn generate_setters_for(
     input: &DeriveInput, data: &DataStruct, generics: &Generics,
-    ty: SynTokenStream, delegate_toks: Option<SynTokenStream>,
+    ty: SynTokenStream, additional_prefix: Option<String>, delegate_toks: Option<SynTokenStream>,
 ) -> Result<SynTokenStream, SynTokenStream> {
     let container_def = init_container_def(&input)?;
     let mut toks = SynTokenStream::new();
     for field in &data.fields {
         if let Some(field_def) = init_field_def(&container_def, field)? {
-            let method = generate_setter_method(&container_def, field_def, &delegate_toks)?;
+            let method = generate_setter_method(&container_def, field_def, &additional_prefix, &delegate_toks)?;
             toks.extend(method);
         }
     }
@@ -333,12 +341,13 @@ fn generate_setters(input: &DeriveInput, data: &DataStruct) -> Result<TokenStrea
     let mut toks = SynTokenStream::new();
     let container_ty = &container_def.ty;
     toks.extend(generate_setters_for(
-        input, data, &container_def.generics, quote! { #container_ty }, None,
+        input, data, &container_def.generics, quote! { #container_ty }, None, None,
     ));
     for delegate in container_def.generate_delegates {
         let delegate_ty = delegate.ty;
         toks.extend(generate_setters_for(
             input, data, &Generics::default(), quote! { #delegate_ty },
+            delegate.prefix,
             if delegate.field.is_some() && delegate.method.is_some() {
                 return Err(error(input.span(),
                                  "Cannot set both `method` and `field` on a delegate.").into());
