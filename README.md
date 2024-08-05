@@ -42,6 +42,8 @@ The following options can be set on the entire struct.
   be duplicated on the target struct, instead modifying `self.some_field` instead of `self`.
 * `#[setters(generate_delegates(ty = "OtherTy", method = "get_field"))]` does the same thing as above, except calling
   `get_field` with no arguments instead of directly accessing a field.
+* `#[setters(generate_delegates(ty = "OtherTy", field = "some_field", prefix = "set_"))]` adds the prefix "set_" to all
+  delegated fields.
 
 The following options can be set on a fields.
 
