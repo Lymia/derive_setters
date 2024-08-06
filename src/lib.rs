@@ -118,6 +118,10 @@ struct FieldAttrs {
     /// Whether to skip this field regardless of global settings. Overwrites `generate`.
     #[darling(default)]
     skip: bool,
+
+    /// The documentation used for this field's setter.
+    #[darling(default)]
+    doc: Option<String>,
 }
 
 struct ContainerDef {
@@ -208,6 +212,8 @@ fn init_field_def(
             let doc_str =
                 format!("Sets the [`{}`](#structfield.{}) field of this struct.", ident, ident);
             quote! { #[doc = #doc_str] }
+        } else if let Some(x) = darling_attrs.doc {
+            quote! { #[doc = #x] }
         } else {
             let attrs = darling_attrs.attrs;
             quote! { #( #attrs )* }
