@@ -312,8 +312,9 @@ fn generate_setter_method(
         } else {
             Ok(quote! {
                 #field_doc
-                pub fn #setter_name (self, #params) -> Self {
-                    #container_name { #field_name: #expr, ..self }
+                pub fn #setter_name (mut self, #params) -> Self {
+                    self.#field_name = #expr;
+                    self
                 }
             })
         }
