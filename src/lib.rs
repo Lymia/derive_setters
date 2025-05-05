@@ -288,7 +288,6 @@ fn generate_setter_method(
     };
 
     // Generates the setter method itself.
-    let container_name = &container.name;
     if let Some(delegate) = delegate_toks {
         let _self = if def.borrow_self {
             quote! { &mut self }
