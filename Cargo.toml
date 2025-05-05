@@ -1,6 +1,6 @@
 [package]
 name = "derive_setters"
-version = "0.1.6"
+version = "0.1.7"
 authors = ["Alissa Rao <aura@aura.moe>"]
 edition = "2018"
 
