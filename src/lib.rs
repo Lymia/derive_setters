@@ -149,6 +149,7 @@ struct FieldDef {
     uses_into: bool,
     strip_option: bool,
     borrow_self: bool,
+    must_use: bool,
     bool: bool,
 }
 
@@ -224,6 +225,7 @@ fn init_field_def(
         uses_into: darling_attrs.into.unwrap_or(container.uses_into),
         strip_option: darling_attrs.strip_option.unwrap_or(container.strip_option),
         borrow_self: darling_attrs.borrow_self.unwrap_or(container.borrow_self),
+        must_use: false == darling_attrs.borrow_self.unwrap_or(container.borrow_self),
         bool: darling_attrs.bool.unwrap_or(container.bool),
     }))
 }
@@ -278,6 +280,13 @@ fn generate_setter_method(
         quote! { value: #value_ty }
     };
 
+    // Add extra attributes 
+    let field_attrs = if def.must_use {
+        SynTokenStream::new()
+    } else {
+        quote! { #[must_use] }
+    };
+
     // Generates the setter method itself.
     let container_name = &container.name;
     if let Some(delegate) = delegate_toks {
@@ -295,6 +304,7 @@ fn generate_setter_method(
 
         Ok(quote! {
             #field_doc
+            #field_attrs
             pub fn #setter_name (#_self, #params) -> #return_self {
                 self.#delegate.#field_name = #expr;
                 self
@@ -304,6 +314,7 @@ fn generate_setter_method(
         if def.borrow_self {
             Ok(quote! {
                 #field_doc
+                #field_attrs
                 pub fn #setter_name (&mut self, #params) -> &mut Self {
                     self.#field_name = #expr;
                     self
@@ -312,8 +323,10 @@ fn generate_setter_method(
         } else {
             Ok(quote! {
                 #field_doc
-                pub fn #setter_name (self, #params) -> Self {
-                    #container_name { #field_name: #expr, ..self }
+                #field_attrs
+                pub fn #setter_name (mut self, #params) -> Self {
+                    self.#field_name = #expr;
+                    self
                 }
             })
         }
