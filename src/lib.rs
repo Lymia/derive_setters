@@ -282,9 +282,9 @@ fn generate_setter_method(
 
     // Add extra attributes 
     let field_attrs = if def.must_use {
-        SynTokenStream::new()
-    } else {
         quote! { #[must_use] }
+    } else {
+        SynTokenStream::new()
     };
 
     // Generates the setter method itself.
