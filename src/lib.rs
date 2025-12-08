@@ -22,10 +22,19 @@ fn error(_: Span, data: &str) -> SynTokenStream {
     quote! { compile_error!(#data); }
 }
 
+fn parse_generics(input: String) -> Result<Generics, darling::Error> {
+    syn::parse_str(&input).map_err(|parse_err| {
+        darling::Error::custom(format!("Could not parse provided generics: {}", parse_err))
+    })
+}
+
 #[derive(Debug, Clone, FromMeta)]
 struct ExternalDelegate {
     /// The type to generate a delegate for.
     ty: Path,
+    /// The generics for the type to generate a delegate for, if any.
+    #[darling(and_then = parse_generics, default)]
+    generics: Generics,
     /// The field to delegate the methods to.
     #[darling(default)]
     field: Option<Ident>,
@@ -80,8 +89,7 @@ struct ContainerAttrs {
     #[darling(default)]
     prefix: Option<String>,
 
-    /// Other types to generate delegates to this type for. Note that this does not support
-    /// generics.
+    /// Other types to generate delegates to this type for.
     #[darling(multiple)]
     generate_delegates: Vec<ExternalDelegate>,
 }
@@ -364,7 +372,10 @@ fn generate_setters(input: &DeriveInput, data: &DataStruct) -> Result<TokenStrea
     for delegate in container_def.generate_delegates {
         let delegate_ty = delegate.ty;
         toks.extend(generate_setters_for(
-            input, data, &Generics::default(), quote! { #delegate_ty },
+            input,
+            data,
+            &delegate.generics,
+            quote! { #delegate_ty },
             delegate.prefix,
             if delegate.field.is_some() && delegate.method.is_some() {
                 return Err(error(input.span(),
