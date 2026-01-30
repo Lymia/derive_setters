@@ -180,7 +180,6 @@ struct FieldDef {
     uses_into: bool,
     strip_option: bool,
     borrow_self: bool,
-    must_use: bool,
     bool: bool,
 }
 
@@ -260,7 +259,6 @@ fn init_field_def(
         uses_into: darling_attrs.into.unwrap_or(container.uses_into),
         strip_option: darling_attrs.strip_option.unwrap_or(container.strip_option),
         borrow_self: darling_attrs.borrow_self.unwrap_or(container.borrow_self),
-        must_use: false == darling_attrs.borrow_self.unwrap_or(container.borrow_self),
         bool: darling_attrs.bool.unwrap_or(container.bool),
     }))
 }
@@ -322,26 +320,27 @@ fn generate_setter_method(
     };
 
     // Add extra attributes
-    let field_attrs = if def.must_use {
+    let field_attrs = if !def.borrow_self {
         quote! { #[must_use] }
     } else {
         SynTokenStream::new()
     };
 
+    // Generate helper fields for self.
+    let _self = if def.borrow_self {
+        quote! { &mut self }
+    } else {
+        quote! { mut self }
+    };
+
+    let return_self = if def.borrow_self {
+        quote! { &mut Self }
+    } else {
+        quote! { Self }
+    };
+
     // Generates the setter method itself.
     if let Some(delegate) = delegate_toks {
-        let _self = if def.borrow_self {
-            quote! { &mut self }
-        } else {
-            quote! { mut self }
-        };
-
-        let return_self = if def.borrow_self {
-            quote! { &mut Self }
-        } else {
-            quote! { Self }
-        };
-
         Ok(quote! {
             #field_doc
             #field_attrs
@@ -351,25 +350,14 @@ fn generate_setter_method(
             }
         })
     } else {
-        if def.borrow_self {
-            Ok(quote! {
-                #field_doc
-                #field_attrs
-                pub fn #setter_name (&mut self, #params) -> &mut Self {
-                    self.#field_name = #expr;
-                    self
-                }
-            })
-        } else {
-            Ok(quote! {
-                #field_doc
-                #field_attrs
-                pub fn #setter_name (mut self, #params) -> Self {
-                    self.#field_name = #expr;
-                    self
-                }
-            })
-        }
+        Ok(quote! {
+            #field_doc
+            #field_attrs
+            pub fn #setter_name (#_self, #params) -> #return_self {
+                self.#field_name = #expr;
+                self
+            }
+        })
     }
 }
 
