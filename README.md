@@ -1,7 +1,7 @@
 # derive_setters
 
 [![Latest Version](https://img.shields.io/crates/v/derive_setters.svg)](https://crates.io/crates/derive_setters)
-![Requires rustc 1.56+](https://img.shields.io/badge/rustc-1.56+-red.svg)
+![Requires rustc 1.68+](https://img.shields.io/badge/rustc-1.68+-red.svg)
 
 Rust macro to automatically generates setter methods for a struct's fields. This can be used to add setters to a plain
 data struct, or to help in implementing builders.

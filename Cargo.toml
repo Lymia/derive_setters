@@ -3,6 +3,7 @@ name = "derive_setters"
 version = "0.1.8"
 authors = ["Alissa Rao <aura@aura.moe>"]
 edition = "2018"
+rust-version = "1.68.0"
 
 description = "Rust macro to automatically generates setter methods for a struct's fields."
 
@@ -18,7 +19,7 @@ proc-macro = true
 nightly = ["proc-macro2/nightly"]
 
 [dependencies]
-darling = "0.23"
+darling = "0.21"
 syn = "2"
 quote = "1"
 proc-macro2 = "1"
