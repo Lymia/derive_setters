@@ -76,8 +76,15 @@ struct GenericDelegateTarget<T> {
     inner: T,
 }
 
+#[derive(Default, Debug, PartialEq, Eq)]
+struct GenericDelegateTargetOther<T: Default> {
+    unrelated: T,
+    inner: GenericDelegatedStruct,
+}
+
 #[derive(Default, Setters, Debug, PartialEq, Eq)]
 #[setters(generate_delegates(ty = "GenericDelegateTarget<GenericDelegatedStruct>", field = "inner"))]
+#[setters(generate_delegates(ty = "GenericDelegateTargetOther<T>", generics = "<T: Default>", field = "inner"))]
 struct GenericDelegatedStruct {
     a: u32,
 }
@@ -110,12 +117,16 @@ fn main() {
     let s5 = PublicGenerateStruct::default().b(120);
     assert_eq!(s5.b, 120);
 
-    let dt = DelegateTarget::default();
-    let dt = dt.delegate_field_a(140);
-    let dt = dt.delegate_method_a(150);
-    assert_eq!(dt.inner.a, 150);
+    let value = DelegateTarget::default();
+    let value = value.delegate_field_a(140);
+    let value = value.delegate_method_a(150);
+    assert_eq!(value.inner.a, 150);
 
-    let gdt = GenericDelegateTarget::<GenericDelegatedStruct>::default();
-    let gdt = gdt.a(160);
-    assert_eq!(gdt.inner.a, 160);
+    let value = GenericDelegateTarget::<GenericDelegatedStruct>::default();
+    let value = value.a(160);
+    assert_eq!(value.inner.a, 160);
+
+    let value = GenericDelegateTargetOther::<u32>::default();
+    let value = value.a(160);
+    assert_eq!(value.inner.a, 160);
 }
