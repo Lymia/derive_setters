@@ -76,7 +76,7 @@ fn basic_ref_delegate_field() {
     a.b(3);
     a.c(34);
 
-    assert_eq!(a.x, InnerRefDelegateStruct{ a: 1, b: 3, c: 34 });
+    assert_eq!(a.x, InnerRefDelegateStruct { a: 1, b: 3, c: 34 });
 }
 
 #[test]
@@ -86,5 +86,5 @@ fn basic_ref_delegate_method() {
     a.b(3);
     a.c(34);
 
-    assert_eq!(a.x, Some(InnerRefDelegateStruct{ a: 1, b: 3, c: 34 }));
+    assert_eq!(a.x, Some(InnerRefDelegateStruct { a: 1, b: 3, c: 34 }));
 }

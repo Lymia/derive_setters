@@ -2,14 +2,14 @@
 
 extern crate proc_macro;
 
-use darling::*;
 use darling::util::Flag;
+use darling::*;
 use proc_macro::TokenStream;
 use proc_macro2::{Span, TokenStream as SynTokenStream};
-use std::result::Result;
-use syn::*;
-use syn::spanned::Spanned;
 use quote::*;
+use std::result::Result;
+use syn::spanned::Spanned;
+use syn::*;
 
 #[cfg(feature = "nightly")]
 fn error(span: Span, data: &str) -> SynTokenStream {
@@ -43,7 +43,7 @@ struct ExternalDelegate {
     method: Option<Ident>,
     /// A prefix for the delegated setter methods.
     #[darling(default)]
-    prefix: Option<String>
+    prefix: Option<String>,
 }
 
 #[derive(Debug, Clone, FromDeriveInput)]
@@ -193,7 +193,8 @@ fn init_container_def(input: &DeriveInput) -> Result<ContainerDef, SynTokenStrea
 }
 
 fn init_field_def(
-    container: &ContainerDef, field: &Field,
+    container: &ContainerDef,
+    field: &Field,
 ) -> Result<Option<FieldDef>, SynTokenStream> {
     // Decode the various attribute options.
     let darling_attrs: FieldAttrs = match FromField::from_field(field) {
@@ -202,12 +203,16 @@ fn init_field_def(
     };
 
     // Check whether this field should generate a setter.
-    if darling_attrs.skip { return Ok(None) }
+    if darling_attrs.skip {
+        return Ok(None);
+    }
     let generates = match field.vis {
         Visibility::Public(_) => container.generate_public,
         _ => container.generate_private,
     };
-    if !(darling_attrs.generate || generates) { return Ok(None) }
+    if !(darling_attrs.generate || generates) {
+        return Ok(None);
+    }
 
     // Returns a definition for this field.
     let ident = match &field.ident {
@@ -218,8 +223,10 @@ fn init_field_def(
         field_name: ident.clone(),
         field_ty: field.ty.clone(),
         field_doc: if let Visibility::Public(_) = field.vis {
-            let doc_str =
-                format!("Sets the [`{}`](#structfield.{}) field of this struct.", ident, ident);
+            let doc_str = format!(
+                "Sets the [`{}`](#structfield.{}) field of this struct.",
+                ident, ident
+            );
             quote! { #[doc = #doc_str] }
         } else if let Some(x) = darling_attrs.doc {
             quote! { #[doc = #x] }
@@ -227,9 +234,9 @@ fn init_field_def(
             let attrs = darling_attrs.attrs;
             quote! { #( #attrs )* }
         },
-        setter_name: darling_attrs.rename.unwrap_or_else(||
-            Ident::new(&format!("{}{}", container.prefix, ident), ident.span())
-        ),
+        setter_name: darling_attrs
+            .rename
+            .unwrap_or_else(|| Ident::new(&format!("{}{}", container.prefix, ident), ident.span())),
         uses_into: darling_attrs.into.unwrap_or(container.uses_into),
         strip_option: darling_attrs.strip_option.unwrap_or(container.strip_option),
         borrow_self: darling_attrs.borrow_self.unwrap_or(container.borrow_self),
@@ -238,16 +245,25 @@ fn init_field_def(
     }))
 }
 
-
 fn generate_setter_method(
-    container: &ContainerDef, def: FieldDef, additional_prefix: &Option<String>, delegate_toks: &Option<SynTokenStream>,
+    container: &ContainerDef,
+    def: FieldDef,
+    additional_prefix: &Option<String>,
+    delegate_toks: &Option<SynTokenStream>,
 ) -> Result<SynTokenStream, SynTokenStream> {
     let FieldDef {
-        field_name, mut field_ty, field_doc, setter_name, ..
+        field_name,
+        mut field_ty,
+        field_doc,
+        setter_name,
+        ..
     } = def;
     let std = &container.std;
     let setter_name = if let Some(additional_prefix) = additional_prefix {
-        Ident::new(&format!("{additional_prefix}{}", setter_name), setter_name.span())
+        Ident::new(
+            &format!("{additional_prefix}{}", setter_name),
+            setter_name.span(),
+        )
     } else {
         setter_name
     };
@@ -277,9 +293,15 @@ fn generate_setter_method(
 
     // The expression actually stored into the field.
     let mut expr = quote! { value };
-    if def.uses_into { expr = quote! { #expr.into() }; }
-    if def.bool { expr = quote! { true }; }
-    if stripped_option { expr = quote! { Some(#expr) }; }
+    if def.uses_into {
+        expr = quote! { #expr.into() };
+    }
+    if def.bool {
+        expr = quote! { true };
+    }
+    if stripped_option {
+        expr = quote! { Some(#expr) };
+    }
 
     // Handle the parameters when bool is enabled.
     let params = if def.bool {
@@ -288,7 +310,7 @@ fn generate_setter_method(
         quote! { value: #value_ty }
     };
 
-    // Add extra attributes 
+    // Add extra attributes
     let field_attrs = if def.must_use {
         quote! { #[must_use] }
     } else {
@@ -341,14 +363,23 @@ fn generate_setter_method(
 }
 
 fn generate_setters_for(
-    input: &DeriveInput, data: &DataStruct, generics: &Generics,
-    ty: SynTokenStream, additional_prefix: Option<String>, delegate_toks: Option<SynTokenStream>,
+    input: &DeriveInput,
+    data: &DataStruct,
+    generics: &Generics,
+    ty: SynTokenStream,
+    additional_prefix: Option<String>,
+    delegate_toks: Option<SynTokenStream>,
 ) -> Result<SynTokenStream, SynTokenStream> {
     let container_def = init_container_def(&input)?;
     let mut toks = SynTokenStream::new();
     for field in &data.fields {
         if let Some(field_def) = init_field_def(&container_def, field)? {
-            let method = generate_setter_method(&container_def, field_def, &additional_prefix, &delegate_toks)?;
+            let method = generate_setter_method(
+                &container_def,
+                field_def,
+                &additional_prefix,
+                &delegate_toks,
+            )?;
             toks.extend(method);
         }
     }
@@ -359,7 +390,6 @@ fn generate_setters_for(
             #toks
         }
     })
-
 }
 
 fn generate_setters(input: &DeriveInput, data: &DataStruct) -> Result<TokenStream, TokenStream> {
@@ -367,7 +397,12 @@ fn generate_setters(input: &DeriveInput, data: &DataStruct) -> Result<TokenStrea
     let mut toks = SynTokenStream::new();
     let container_ty = &container_def.ty;
     toks.extend(generate_setters_for(
-        input, data, &container_def.generics, quote! { #container_ty }, None, None,
+        input,
+        data,
+        &container_def.generics,
+        quote! { #container_ty },
+        None,
+        None,
     ));
     for delegate in container_def.generate_delegates {
         let delegate_ty = delegate.ty;
@@ -378,16 +413,22 @@ fn generate_setters(input: &DeriveInput, data: &DataStruct) -> Result<TokenStrea
             quote! { #delegate_ty },
             delegate.prefix,
             if delegate.field.is_some() && delegate.method.is_some() {
-                return Err(error(input.span(),
-                                 "Cannot set both `method` and `field` on a delegate.").into());
+                return Err(error(
+                    input.span(),
+                    "Cannot set both `method` and `field` on a delegate.",
+                )
+                .into());
             } else if let Some(field) = &delegate.field {
                 Some(quote! { #field })
             } else if let Some(method) = &delegate.method {
                 Some(quote! { #method() })
             } else {
-                return Err(error(input.span(),
-                                 "Must set either `method` or `field` on a delegate.").into());
-            }
+                return Err(error(
+                    input.span(),
+                    "Must set either `method` or `field` on a delegate.",
+                )
+                .into());
+            },
         ));
     }
     Ok(toks.into())
@@ -402,6 +443,10 @@ pub fn derive_setters(input: TokenStream) -> TokenStream {
             Err(toks) => toks,
         }
     } else {
-        error(input.span(), "`#[derive(Setters)] may only be used on structs.").into()
+        error(
+            input.span(),
+            "`#[derive(Setters)] may only be used on structs.",
+        )
+        .into()
     }
 }
