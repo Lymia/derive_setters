@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v0.1.9 (2026-01-30)
 
+* Add support for delegating setters for generic types. (Thanks @MrSubidubi)
+* Documentation has been moved from the `README.md` to a proper rustdoc.
+* MSRV is increased to 1.68+ due to dependency updates.
+
 ### Commit Statistics
 
 <csr-read-only-do-not-edit/>
