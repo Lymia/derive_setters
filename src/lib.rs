@@ -133,7 +133,6 @@ struct FieldAttrs {
 }
 
 struct ContainerDef {
-    name: Ident,
     ty: Type,
     std: Ident,
     generics: Generics,
@@ -173,7 +172,6 @@ fn init_container_def(input: &DeriveInput) -> Result<ContainerDef, SynTokenStrea
 
     let generate = darling_attrs.generate.unwrap_or(true);
     Ok(ContainerDef {
-        name: darling_attrs.ident,
         ty: parse2(ty).expect("Internal error: failed to parse internally generated type."),
         std: if darling_attrs.no_std.is_present() {
             Ident::new("core", Span::call_site())
