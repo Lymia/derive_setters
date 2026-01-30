@@ -43,7 +43,11 @@ fn field_ref_struct() {
 #[derive(Default, Setters, Debug, PartialEq, Eq)]
 #[setters(borrow_self)]
 #[setters(generate_delegates(ty = "BasicRefDelegateField", field = "x"))]
-#[setters(generate_delegates(ty = "BasicRefDelegateFieldGeneric<T>", generics = "<T: Default>", field = "x"))]
+#[setters(generate_delegates(
+    ty = "BasicRefDelegateFieldGeneric<T>",
+    generics = "<T: Default>",
+    field = "x"
+))]
 #[setters(generate_delegates(ty = "BasicRefDelegateMethod", method = "get_x"))]
 struct InnerRefDelegateStruct {
     #[setters(rename = "test")]

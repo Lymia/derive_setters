@@ -245,10 +245,8 @@ fn init_field_def(
         field_name: ident.clone(),
         field_ty: field.ty.clone(),
         field_doc: if let Visibility::Public(_) = field.vis {
-            let doc_str = format!(
-                "Sets the [`{}`](#structfield.{}) field of this struct.",
-                ident, ident
-            );
+            let doc_str =
+                format!("Sets the [`{}`](#structfield.{}) field of this struct.", ident, ident);
             quote! { #[doc = #doc_str] }
         } else if let Some(x) = darling_attrs.doc {
             quote! { #[doc = #x] }
@@ -273,19 +271,10 @@ fn generate_setter_method(
     additional_prefix: &Option<String>,
     delegate_toks: &Option<SynTokenStream>,
 ) -> Result<SynTokenStream, SynTokenStream> {
-    let FieldDef {
-        field_name,
-        mut field_ty,
-        field_doc,
-        setter_name,
-        ..
-    } = def;
+    let FieldDef { field_name, mut field_ty, field_doc, setter_name, .. } = def;
     let std = &container.std;
     let setter_name = if let Some(additional_prefix) = additional_prefix {
-        Ident::new(
-            &format!("{additional_prefix}{}", setter_name),
-            setter_name.span(),
-        )
+        Ident::new(&format!("{additional_prefix}{}", setter_name), setter_name.span())
     } else {
         setter_name
     };
@@ -561,10 +550,6 @@ pub fn derive_setters(input: TokenStream) -> TokenStream {
     if let Data::Struct(data) = &input.data {
         generate_setters(&input, data).unwrap_or_else(|toks| toks)
     } else {
-        error(
-            input.span(),
-            "`#[derive(Setters)] may only be used on structs.",
-        )
-        .into()
+        error(input.span(), "`#[derive(Setters)] may only be used on structs.").into()
     }
 }
