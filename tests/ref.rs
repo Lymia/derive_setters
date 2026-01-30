@@ -43,6 +43,7 @@ fn field_ref_struct() {
 #[derive(Default, Setters, Debug, PartialEq, Eq)]
 #[setters(borrow_self)]
 #[setters(generate_delegates(ty = "BasicRefDelegateField", field = "x"))]
+#[setters(generate_delegates(ty = "BasicRefDelegateFieldGeneric<T>", generics = "<T: Default>", field = "x"))]
 #[setters(generate_delegates(ty = "BasicRefDelegateMethod", method = "get_x"))]
 struct InnerRefDelegateStruct {
     #[setters(rename = "test")]
@@ -54,6 +55,12 @@ struct InnerRefDelegateStruct {
 #[derive(Default, Debug, PartialEq, Eq)]
 struct BasicRefDelegateField {
     x: InnerRefDelegateStruct,
+}
+
+#[derive(Default, Debug, PartialEq, Eq)]
+struct BasicRefDelegateFieldGeneric<T: Default> {
+    x: InnerRefDelegateStruct,
+    y: T,
 }
 
 #[derive(Default, Debug, PartialEq, Eq)]
@@ -72,6 +79,16 @@ impl BasicRefDelegateMethod {
 #[test]
 fn basic_ref_delegate_field() {
     let mut a = BasicRefDelegateField::default();
+    a.test(1);
+    a.b(3);
+    a.c(34);
+
+    assert_eq!(a.x, InnerRefDelegateStruct { a: 1, b: 3, c: 34 });
+}
+
+#[test]
+fn basic_ref_delegate_field_generic() {
+    let mut a: BasicRefDelegateFieldGeneric<u32> = Default::default();
     a.test(1);
     a.b(3);
     a.c(34);
