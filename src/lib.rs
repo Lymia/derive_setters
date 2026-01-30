@@ -23,7 +23,7 @@ fn error(_: Span, data: &str) -> SynTokenStream {
 }
 
 fn parse_generics(input: String) -> Result<Generics, darling::Error> {
-    syn::parse_str(&input).map_err(|parse_err| {
+    parse_str(&input).map_err(|parse_err| {
         darling::Error::custom(format!("Could not parse provided generics: {}", parse_err))
     })
 }
@@ -436,10 +436,7 @@ fn generate_setters(input: &DeriveInput, data: &DataStruct) -> Result<TokenStrea
 pub fn derive_setters(input: TokenStream) -> TokenStream {
     let input: DeriveInput = parse_macro_input!(input);
     if let Data::Struct(data) = &input.data {
-        match generate_setters(&input, data) {
-            Ok(toks) => toks,
-            Err(toks) => toks,
-        }
+        generate_setters(&input, data).unwrap_or_else(|toks| toks)
     } else {
         error(
             input.span(),
