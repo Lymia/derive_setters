@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.1.9 (2026-01-30)
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 14 commits contributed to the release.
+ - 0 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Add tests for generics in compile-pass ([`8d37502`](https://github.com/Lymia/derive_setters/commit/8d375020487594b888ebd0f6e8e38007916eb663))
+    - Add trybuild tests. ([`74e353f`](https://github.com/Lymia/derive_setters/commit/74e353f6a9413047383e28898962fc3ecbe8d90d))
+    - Update Rust version. ([`1ca0910`](https://github.com/Lymia/derive_setters/commit/1ca091031ec85d3e7dbeca33f234986677d037f4))
+    - Update the rustfmt options and run rustfmt. ([`0ab982f`](https://github.com/Lymia/derive_setters/commit/0ab982f01254c1e17b7745f54aebe6a7f1ece22b))
+    - Move the documentation into rustdoc. ([`722f3fc`](https://github.com/Lymia/derive_setters/commit/722f3fc029f56fdf31c8e838a4a8a05a609d0a36))
+    - Code style improvements. ([`da6237b`](https://github.com/Lymia/derive_setters/commit/da6237bccf4f56519e38e0f3d4a51cd6c050dae0))
+    - Remove an unused field. ([`8a112f3`](https://github.com/Lymia/derive_setters/commit/8a112f31abc90a511c92595422fc946cd6d0006b))
+    - Update MSRV to 1.68.0 due to dependency updates. ([`474375d`](https://github.com/Lymia/derive_setters/commit/474375d304cbafa4b8bd8b0d27060a71c0588e71))
+    - Update documentation and adds a changelog. ([`66c390a`](https://github.com/Lymia/derive_setters/commit/66c390ae72f2644d89c6a6706f5b3fd523e30fee))
+    - Update darling version. ([`30ea90e`](https://github.com/Lymia/derive_setters/commit/30ea90e7d7c0be674eb9ccc9324e4d020b671299))
+    - Implement tests for generic delegates. ([`bd14002`](https://github.com/Lymia/derive_setters/commit/bd1400267cee1e30d216eff0ac0cd9d20dea3c2c))
+    - Run rustfmt. ([`ccdc14e`](https://github.com/Lymia/derive_setters/commit/ccdc14e939ac9cd3b098015c9851b21685d077c9))
+    - Merge pull request #19 from MrSubidubi/delegate-generic-support ([`284500e`](https://github.com/Lymia/derive_setters/commit/284500e046344bb9a407d954cc44066a4b641c45))
+    - Add support for generics in `generate_delegates` ([`d777525`](https://github.com/Lymia/derive_setters/commit/d7775259dfb21564b2c5cee4d5b3a692158c5b6b))
+</details>
+
 ## v0.1.8 (2025-07-08)
 
 * Fixes the logic for `#[setters(must_use)]`. (Thanks @eakoli)

@@ -1,6 +1,6 @@
 [package]
 name = "derive_setters"
-version = "0.1.8"
+version = "0.1.9"
 authors = ["Alissa Rao <aura@aura.moe>"]
 edition = "2021"
 rust-version = "1.68.0"
