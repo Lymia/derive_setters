@@ -17,8 +17,14 @@ proc-macro = true
 [features]
 nightly = ["proc-macro2/nightly"]
 
+# NOT PUBLIC API
+__NOT_PUBLIC__nightly_testing = ["trybuild"]
+
 [dependencies]
 darling = "0.21"
 syn = "2"
 quote = "1"
 proc-macro2 = "1"
+
+# This should be a dev-dependency, but dev-dependencies can't be optional. :(
+trybuild = { version = "1.0", optional = true }
