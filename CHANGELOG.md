@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 14 commits contributed to the release.
+ - 16 commits contributed to the release.
  - 0 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 0 issues like '(#ID)' were seen in commit messages
 
@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <details><summary>view details</summary>
 
  * **Uncategorized**
+    - Add proper changelog entries. ([`87037bf`](https://github.com/Lymia/derive_setters/commit/87037bf65042bf127aa0c1d3986285731ccbfb2b))
+    - Adjusting changelogs prior to release of derive_setters v0.1.9 ([`f8a3c46`](https://github.com/Lymia/derive_setters/commit/f8a3c46737f229cb9472f0fafe790d5f0d115609))
     - Add tests for generics in compile-pass ([`8d37502`](https://github.com/Lymia/derive_setters/commit/8d375020487594b888ebd0f6e8e38007916eb663))
     - Add trybuild tests. ([`74e353f`](https://github.com/Lymia/derive_setters/commit/74e353f6a9413047383e28898962fc3ecbe8d90d))
     - Update Rust version. ([`1ca0910`](https://github.com/Lymia/derive_setters/commit/1ca091031ec85d3e7dbeca33f234986677d037f4))
